@@ -10,6 +10,7 @@ import axios from "axios";
 import { jwtDecode } from "jwt-decode";
 import "./chat.css";
 
+
 const WebSocketComponent = () => {
   const navigate = useNavigate();
   const [stompClient, setStompClient] = useState(null);

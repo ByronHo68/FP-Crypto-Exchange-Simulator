@@ -17,5 +17,4 @@ public class AppsUserController {
         SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         return principal.getName();
     }
-
 }
