@@ -1,0 +1,104 @@
+
+body {
+    background-color: #121212; 
+    font-family: Arial, sans-serif; 
+}
+
+table {
+    width: 100%;
+    table-layout: fixed; 
+}
+
+table th,
+table td {
+    padding: 12px; 
+    text-align: left; 
+}
+
+table th {
+    background-color: #1a1b1e; 
+    color: #ffffff; 
+}
+
+table tr:nth-child(even) {
+    background-color: #2a2b2e; 
+}
+
+table tr:hover {
+    background-color: #3a3b3e; 
+}
+
+button {
+    margin-right: 10px;
+    padding: 10px 15px; 
+    border-radius: 5px; 
+    border: none; 
+    cursor: pointer; 
+}
+
+button:hover {
+    background-color: #4a4b4e; 
+}
+
+.error-message {
+    color: #ff4d4d; 
+}
+
+.success-message {
+    color: #4caf50; 
+}
+
+@media (max-width: 768px) {
+    table th, table td {
+        padding: 8px; 
+        font-size: 14px; 
+    }
+
+    button {
+        width: 100%; 
+        margin-bottom: 10px; 
+    }
+}
+
+.transfer-button-container {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 20px; 
+}
+@keyframes flash {
+    0% { background-color: red; }
+    50% { background-color: transparent; }
+    100% { background-color: red; }
+}
+
+.flashing-button {
+    animation: flash 1s infinite; 
+    border: 2px solid darkred; 
+    color: white; 
+}
+@keyframes flashGreen {
+    0% { background-color: green; }
+    50% { background-color: transparent; }
+    100% { background-color: green; }
+}
+
+.flashing-green-button {
+    animation: flashGreen 1s infinite; 
+    border: 2px solid darkgreen; 
+    color: white; 
+}
+
+.card-container {
+    display: flex; 
+    justify-content: space-between; 
+    align-items: flex-start; 
+    margin-bottom: 20px; 
+}
+
+.transfer-button {
+    margin-right: 20px; 
+}
+.centered {
+    text-align: center;
+    margin: 20px 0; 
+}

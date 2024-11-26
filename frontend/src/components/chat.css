@@ -1,0 +1,55 @@
+.toggle-container {
+    display: flex;
+    align-items: center;
+}
+.toggle-container {
+    position: relative;
+}
+
+.toggle-input {
+    display: none; /* Hide the default checkbox */
+}
+
+.toggle-label {
+    cursor: pointer;
+    width: 60px; /* Width of the toggle */
+    height: 34px; /* Height of the toggle */
+    background-color: #f44336; /* Default background color (Red for Sell) */
+    border-radius: 34px; /* Rounded edges */
+    position: relative;
+    transition: background-color 0.3s;
+}
+
+.slider {
+    position: absolute;
+    top: 2px; /* Positioning of the slider */
+    left: 2px; /* Positioning of the slider */
+    width: 30px; /* Width of the slider */
+    height: 30px; /* Height of the slider */
+    background-color: white; /* Slider color */
+    border-radius: 50%; /* Round shape for the slider */
+    transition: transform 0.3s; /* Smooth transition for sliding effect */
+}
+
+/* Buy/Sell Toggle Colors */
+.toggle-input#buySellToggle:checked + .toggle-label {
+    background-color: #4CAF50; /* Green when checked (Buy) */
+}
+
+.toggle-input#buySellToggle:not(:checked) + .toggle-label {
+    background-color: #f44336; /* Red when unchecked (Sell) */
+}
+
+/* Market/Limit Toggle Colors */
+.toggle-input#orderTypeToggle:checked + .toggle-label {
+    background-color: #2196F3; /* Blue when checked (Limit) */
+}
+
+.toggle-input#orderTypeToggle:not(:checked) + .toggle-label {
+    background-color: #FFD600; /* Yellow when unchecked (Market) */
+}
+
+.toggle-input#buySellToggle:checked + .toggle-label .slider,
+.toggle-input#orderTypeToggle:checked + .toggle-label .slider {
+    transform: translateX(26px); /* Move slider to right when checked */
+}

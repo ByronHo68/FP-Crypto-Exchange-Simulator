@@ -1,0 +1,112 @@
+package com.Ron.tradingApps.service.data;
+
+import com.Ron.tradingApps.model.historicalData.Candle;
+import com.Ron.tradingApps.repository.CandleRepository;
+import lombok.extern.slf4j.Slf4j;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
+import org.json.JSONArray;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Service;
+
+import java.io.IOException;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
+
+@Service
+@Slf4j
+@EnableScheduling
+public class ScheduleBinanceService {
+
+    @Autowired
+    private CandleRepository candleRepository;
+
+    @Scheduled(cron = "0 1 0 * * *", zone = "Asia/Hong_Kong")
+    public void run() throws Exception {
+        fetchAndStoreData("BTCUSDT");
+        fetchAndStoreData("ETHUSDT");
+    }
+
+    private void fetchAndStoreData(String symbol) {
+        try {
+            LocalDateTime startDateTime = LocalDateTime.now().minusDays(1).withHour(0).withMinute(0).withSecond(0);
+            LocalDateTime endDateTime = LocalDateTime.now().withHour(0).minusMinutes(1).withSecond(0);
+
+            long startTime = startDateTime.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
+            long endTime = endDateTime.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
+
+            List<Candle> candles = fetchHistoricalData(symbol, startTime, endTime);
+            candleRepository.saveAll(candles);
+            log.info("Stored {} candles for {}", candles.size(), symbol);
+        } catch (IOException e) {
+            log.error("Error fetching data for {}: {}", symbol, e.getMessage());
+        }
+    }
+
+    private final OkHttpClient client = new OkHttpClient();
+
+    public List<Candle> fetchHistoricalData(String symbol, long startTime, long endTime) throws IOException {
+        List<Candle> allCandles = new ArrayList<>();
+        int requests = 6;
+        long intervalDuration = (endTime - startTime) / requests;
+
+        for (int i = 0; i < requests; i++) {
+            long reqStartTime = startTime + i * intervalDuration;
+            long reqEndTime = reqStartTime + intervalDuration;
+
+            String url = String.format("https://api.binance.com/api/v3/klines?symbol=%s&interval=1m&startTime=%d&endTime=%d&limit=500",
+                    symbol, reqStartTime, reqEndTime);
+
+            Request request = new Request.Builder().url(url).build();
+            try (Response response = client.newCall(request).execute()) {
+                if (!response.isSuccessful()) throw new IOException("Unexpected code " + response);
+
+                String responseData = response.body().string();
+                allCandles.addAll(parseCandleData(responseData, symbol));
+            }
+        }
+
+        return allCandles;
+    }
+
+    private List<Candle> parseCandleData(String jsonData, String symbol) {
+        List<Candle> candles = new ArrayList<>();
+        JSONArray jsonArray = new JSONArray(jsonData);
+
+        DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm");
+        DateTimeFormatter customFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+
+        for (int i = 0; i < jsonArray.length(); i++) {
+            JSONArray candleData = jsonArray.getJSONArray(i);
+
+            long openTimeMillis = candleData.getLong(0);
+            LocalDateTime openTime = LocalDateTime.ofInstant(Instant.ofEpochMilli(openTimeMillis), ZoneId.systemDefault());
+            String formattedOpenTime = openTime.format(customFormatter);
+
+            Candle candle = new Candle();
+            candle.setSymbol(symbol);
+            candle.setOpenTime(openTime);
+            candle.setFormattedOpenTime(formattedOpenTime);
+            candle.setOpenPrice(candleData.getDouble(1));
+            candle.setHighPrice(candleData.getDouble(2));
+            candle.setLowPrice(candleData.getDouble(3));
+            candle.setClosePrice(candleData.getDouble(4));
+            candle.setVolume(candleData.getDouble(5));
+
+            candle.setFormattedTime(openTime.format(timeFormatter));
+            candle.setDate(openTime.toLocalDate());
+
+            candles.add(candle);
+        }
+
+        return candles;
+    }
+}
