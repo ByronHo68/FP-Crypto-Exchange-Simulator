@@ -13,7 +13,9 @@ import java.io.IOException;
 import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Service
 public class BinanceService {
@@ -48,6 +50,7 @@ public class BinanceService {
 
     private List<Candle> parseCandleData(String jsonData, String symbol) {
         List<Candle> candles = new ArrayList<>();
+        Set<Long> existingOpenTimes = new HashSet<>();
         JSONArray jsonArray = new JSONArray(jsonData);
 
         DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm");
@@ -57,6 +60,11 @@ public class BinanceService {
             JSONArray candleData = jsonArray.getJSONArray(i);
 
             long openTimeMillis = candleData.getLong(0);
+
+            if (!existingOpenTimes.add(openTimeMillis)) {
+                continue;
+            }
+
             LocalDateTime openTime = LocalDateTime.ofInstant(Instant.ofEpochMilli(openTimeMillis), ZoneId.systemDefault());
             String formattedOpenTime = openTime.format(customFormatter);
 
