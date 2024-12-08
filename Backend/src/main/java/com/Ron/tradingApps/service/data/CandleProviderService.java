@@ -32,7 +32,8 @@ public class CandleProviderService {
     private final DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm");
 
     public void updateCandlesInBatch(List<CandleDTO> candleDTOs) {
-        candleDTOs.forEach(dto -> updateCandlesBySymbol(dto.getSymbol(), dto));
+        Set<CandleDTO> uniqueCandles = new HashSet<>(candleDTOs);
+        uniqueCandles.forEach(dto -> updateCandlesBySymbol(dto.getSymbol(), dto));
     }
 
     public void updateCandlesBySymbol(String symbol, CandleDTO dto) {
@@ -40,7 +41,11 @@ public class CandleProviderService {
             return;
         }
 
-        candlesBySymbol.computeIfAbsent(symbol, k -> new ArrayList<>()).add(dto);
+        List<CandleDTO> existingCandles = candlesBySymbol.computeIfAbsent(symbol, k -> new ArrayList<>());
+
+        if (!existingCandles.contains(dto)) {
+            existingCandles.add(dto);
+        }
     }
 
     public List<CandleDTO> getCandlesBySymbol(String symbol) {

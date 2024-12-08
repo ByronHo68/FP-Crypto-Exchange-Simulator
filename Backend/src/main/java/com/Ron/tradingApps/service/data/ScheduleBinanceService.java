@@ -39,7 +39,7 @@ public class ScheduleBinanceService {
 
     private void fetchAndStoreData(String symbol) {
         try {
-            LocalDateTime startDateTime = LocalDateTime.now().minusDays(1).withHour(0).withMinute(0).withSecond(0);
+            LocalDateTime startDateTime = LocalDateTime.now().minusDays(1).withHour(0).withMinute(1).withSecond(0);
             LocalDateTime endDateTime = LocalDateTime.now().withHour(0).minusMinutes(1).withSecond(0);
 
             long startTime = startDateTime.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
