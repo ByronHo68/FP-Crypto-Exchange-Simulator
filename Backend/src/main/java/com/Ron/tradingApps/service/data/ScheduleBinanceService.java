@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 @Service
 @Slf4j
@@ -46,10 +47,31 @@ public class ScheduleBinanceService {
             long endTime = endDateTime.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
 
             List<Candle> candles = fetchHistoricalData(symbol, startTime, endTime);
-            candleRepository.saveAll(candles);
+            if (candles.size() == 1440) {
+                log.warn("Only {} candles retrieved for {}. Attempting to fetch missing candle.", candles.size(), symbol);
+                TimeUnit.SECONDS.sleep(10);
+                fetchMissingCandle(symbol, startTime, endTime);
+            }
+            else{candleRepository.saveAll(candles);}
             log.info("Stored {} candles for {}", candles.size(), symbol);
-        } catch (IOException e) {
+
+
+        } catch (IOException | InterruptedException e) {
             log.error("Error fetching data for {}: {}", symbol, e.getMessage());
+        }
+    }
+
+    private void fetchMissingCandle(String symbol, long startTime, long endTime) {
+        try {
+            List<Candle> missingCandles = fetchHistoricalData(symbol, startTime, endTime);
+            if (!missingCandles.isEmpty()) {
+                candleRepository.saveAll(missingCandles);
+                log.info("Stored additional {} missing candles for {}", missingCandles.size(), symbol);
+            } else {
+                log.warn("No missing candles found for {}", symbol);
+            }
+        } catch (IOException e) {
+            log.error("Error fetching missing candles for {}: {}", symbol, e.getMessage());
         }
     }
 
