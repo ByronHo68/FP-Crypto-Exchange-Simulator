@@ -47,7 +47,7 @@ public class ScheduleBinanceService {
             long endTime = endDateTime.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
 
             List<Candle> candles = fetchHistoricalData(symbol, startTime, endTime);
-            if (candles.size() == 1440) {
+            if (candles.size() < 1440) {
                 log.warn("Only {} candles retrieved for {}. Attempting to fetch missing candle.", candles.size(), symbol);
                 TimeUnit.SECONDS.sleep(10);
                 fetchMissingCandle(symbol, startTime, endTime);
