@@ -54,6 +54,12 @@ public class OrderService {
     @Autowired
     private PriceService priceService;
 
+    private static final String BUY_TYPE = "buy";
+    private static final String SELL_TYPE = "sell";
+    private static final String CURRENCY_USDT = "USDT";
+    private static final String LIMIT_TYPE = "limit";
+
+
     @Transactional
     public OrderResponseDTO createOrder(OrderRequestDTO requestDTO) {
         Trader trader = traderRepository.findById(requestDTO.getTraderId())
@@ -72,9 +78,9 @@ public class OrderService {
         order = orderRepository.save(order);
         String userId = trader.getUserId();
 
-        if ("buy".equalsIgnoreCase(order.getBuyAndSellType())) {
+        if (BUY_TYPE.equalsIgnoreCase(order.getBuyAndSellType())) {
             BigDecimal cost = order.getPrice().multiply(order.getAmount());
-            Wallet usdtWallet = walletService.findOrCreateWallet(trader, "USDT");
+            Wallet usdtWallet = walletService.findOrCreateWallet(trader, CURRENCY_USDT);
 
             if (usdtWallet.getAmount().compareTo(cost) < 0) {
                 throw new IllegalArgumentException("Insufficient USDT balance");
@@ -86,13 +92,13 @@ public class OrderService {
             WalletWebsocketDTO usdtWalletDTO = new WalletWebsocketDTO(
                     usdtWallet.getId(),
                     trader.getId(),
-                    "USDT",
+                    CURRENCY_USDT,
                     usdtWallet.getAmount()
             );
 
             messagingTemplate.convertAndSend("/topic/wallets/" + userId, usdtWalletDTO);
 
-        } else if ("sell".equalsIgnoreCase(order.getBuyAndSellType())) {
+        } else if (SELL_TYPE.equalsIgnoreCase(order.getBuyAndSellType())) {
             Wallet currencyWallet = walletService.findOrCreateWallet(trader, order.getCurrency());
 
             if (currencyWallet.getAmount().compareTo(order.getAmount()) < 0) {
@@ -111,7 +117,7 @@ public class OrderService {
 
             messagingTemplate.convertAndSend("/topic/wallets/" + userId, currencyWalletDTO);
         }
-        if("limit".equalsIgnoreCase(order.getMarketOrLimitOrderTypes())) {
+        if(LIMIT_TYPE.equalsIgnoreCase(order.getMarketOrLimitOrderTypes())) {
             String currency = order.getCurrency();
 
             if (!currency.equals("ETHUSDT") && !currency.equals("BTCUSDT")) {
@@ -124,11 +130,7 @@ public class OrderService {
                 BigDecimal latestPriceBD = BigDecimal.valueOf(latestPrice);
                 BigDecimal orderPrice = order.getPrice();
 
-                BigDecimal onePercentDifference = latestPriceBD.multiply(BigDecimal.valueOf(0.01));
-                BigDecimal lowerBound = latestPriceBD.subtract(onePercentDifference);
-                BigDecimal upperBound = latestPriceBD.add(onePercentDifference);
-
-                if (orderPrice.compareTo(lowerBound) < 0 || orderPrice.compareTo(upperBound) > 0) {
+                if (!isOrderPriceWithinBounds(orderPrice, latestPriceBD)) {
                     OrderDTO pendingOrderDto = new OrderDTO(
                             order.getId(),
                             trader.getId(),
@@ -144,6 +146,14 @@ public class OrderService {
             }
         }
         return OrderMapper.toResponseDTO(order);
+    }
+
+    private boolean isOrderPriceWithinBounds(BigDecimal orderPrice, BigDecimal latestPriceBD) {
+        BigDecimal onePercentDifference = latestPriceBD.multiply(BigDecimal.valueOf(0.01));
+        BigDecimal lowerBound = latestPriceBD.subtract(onePercentDifference);
+        BigDecimal upperBound = latestPriceBD.add(onePercentDifference);
+
+        return !(orderPrice.compareTo(lowerBound) < 0 || orderPrice.compareTo(upperBound) > 0);
     }
 
     public Order findById(Integer orderId) throws ResourceNotFoundException {
@@ -169,11 +179,11 @@ public class OrderService {
 
         Wallet walletToUpdate = null;
 
-        if ("buy".equalsIgnoreCase(existingOrder.getBuyAndSellType())) {
-            walletToUpdate = walletService.findOrCreateWallet(trader, "USDT");
+        if (BUY_TYPE.equalsIgnoreCase(existingOrder.getBuyAndSellType())) {
+            walletToUpdate = walletService.findOrCreateWallet(trader, CURRENCY_USDT);
             walletToUpdate.setAmount(walletToUpdate.getAmount().add(existingOrder.getAmount()));
             log.info("Updated USDT wallet for trader {}: new amount is {}", userId, walletToUpdate.getAmount());
-        } else if ("sell".equalsIgnoreCase(existingOrder.getBuyAndSellType())) {
+        } else if (SELL_TYPE.equalsIgnoreCase(existingOrder.getBuyAndSellType())) {
             walletToUpdate = walletService.findOrCreateWallet(trader, existingOrder.getCurrency());
             walletToUpdate.setAmount(walletToUpdate.getAmount().add(existingOrder.getAmount()));
             log.info("Updated {} wallet for trader {}: new amount is {}", existingOrder.getCurrency(), userId, walletToUpdate.getAmount());
@@ -201,16 +211,18 @@ public class OrderService {
     }
 
     public List<OrderResponseDTO> findAllOrdersByTrader(String userId) {
-        Optional<Trader> trader = traderRepository.findByUserId(userId);
-        int traderId = trader.get().getId();
-        List<Order> orders = orderRepository.findAllByTraderId(traderId);
+        Trader trader = traderRepository.findByUserId(userId).orElseThrow(() -> new ResourceNotFoundException(
+                "Trader not found by id " + userId
+        ));
+        List<Order> orders = orderRepository.findAllByTraderId(trader.getId());
         return OrderMapper.toResponseDTOList(orders);
     }
 
     public List<OrderResponseDTO> findPendingOrdersByTrader(String userId) {
-        Optional<Trader> trader = traderRepository.findByUserId(userId);
-        int traderId = trader.get().getId();
-        List<Order> pendingOrders = orderRepository.findPendingOrdersByTraderId(traderId);
+        Trader trader = traderRepository.findByUserId(userId).orElseThrow(() -> new ResourceNotFoundException(
+                "Trader not found by id " + userId
+        ));
+        List<Order> pendingOrders = orderRepository.findPendingOrdersByTraderId(trader.getId());
         return pendingOrders.stream()
                 .map(order -> OrderResponseDTO.builder()
                         .id(order.getId())

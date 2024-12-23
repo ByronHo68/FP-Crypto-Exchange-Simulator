@@ -36,7 +36,7 @@ public class TraderService {
     public Trader findByUsername(String username) throws ResourceNotFoundException{
         return traderRepository.findByUsername(username)
                 .orElseThrow(() -> new ResourceNotFoundException(
-                        "Product not found by id " + username
+                        "Trader not found by id " + username
                 ));
     }
 
