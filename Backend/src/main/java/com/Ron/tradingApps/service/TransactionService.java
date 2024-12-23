@@ -61,6 +61,10 @@ public class TransactionService {
     @Autowired
     private TransactionMapper transactionMapper;
 
+    private static final String BUY_TYPE = "buy";
+    private static final String SELL_TYPE = "sell";
+    private static final String CURRENCY_USDT = "USDT";
+
     @Transactional
     public WalletResponseDTO createTransaction(OrderResponseDTO orderDTO) {
         Order order = orderRepository.findById(orderDTO.getId())
@@ -98,8 +102,8 @@ public class TransactionService {
         BigDecimal price = transaction.getPrice();
 
 
-        if ("buy".equalsIgnoreCase(transaction.getBuyOrSellType())) {
-            Wallet usdtWallet = walletService.findOrCreateWallet(trader, "USDT");
+        if (BUY_TYPE.equalsIgnoreCase(transaction.getBuyOrSellType())) {
+            Wallet usdtWallet = walletService.findOrCreateWallet(trader, CURRENCY_USDT);
 
 
             Wallet currencyWallet = walletService.findOrCreateWallet(trader, transaction.getCurrency());
@@ -111,14 +115,14 @@ public class TransactionService {
 
             return createWalletResponse(trader, usdtWallet, currencyWallet);
 
-        } else if ("sell".equalsIgnoreCase(transaction.getBuyOrSellType())) {
+        } else if (SELL_TYPE.equalsIgnoreCase(transaction.getBuyOrSellType())) {
 
             Wallet currencyWallet = walletService.findByIdAndCurrencyOrCreate(trader.getId(), transaction.getCurrency());
             if (currencyWallet == null || currencyWallet.getAmount().compareTo(amount) < 0) {
                 throw new IllegalArgumentException("Insufficient " + transaction.getCurrency() + " balance in trader's wallet");
             }
 
-            Wallet usdtWallet = walletService.findOrCreateWallet(trader, "USDT");
+            Wallet usdtWallet = walletService.findOrCreateWallet(trader, CURRENCY_USDT);
 
             BigDecimal totalRevenue = amount.multiply(price);
 
