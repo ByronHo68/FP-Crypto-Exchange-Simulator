@@ -35,6 +35,9 @@ public class SchedulePL {
     private OrderRepository orderRepository;
     @Autowired
     private CandleRepository candleRepository;
+    private static final BigDecimal MAX_ALLOWED_TOTAL = new BigDecimal("9999999999999999.99");
+    private static final String BUY_TYPE = "buy";
+    private static final String SELL_TYPE = "sell";
 
     @Scheduled(cron = "0 2 0 * * *", zone = "Asia/Hong_Kong")
     public void run() throws Exception {
@@ -82,9 +85,9 @@ public class SchedulePL {
             for (Order order : pendingOrders) {
                 Optional<BigDecimal> priceOpt = candleRepository.findClosePriceBySymbolAndOpenTime(order.getCurrency(), midNight);
                 BigDecimal price = priceOpt.orElse(BigDecimal.ZERO);
-                if (order.getBuyAndSellType().equalsIgnoreCase("sell")) {
+                if (order.getBuyAndSellType().equalsIgnoreCase(SELL_TYPE)) {
                     total.add(price.multiply(order.getAmount()));
-                } else if (order.getBuyAndSellType().equalsIgnoreCase("buy")) {
+                } else if (order.getBuyAndSellType().equalsIgnoreCase(BUY_TYPE)) {
                     total.add(order.getPrice().multiply(order.getAmount()));
                 }
             }
@@ -92,7 +95,7 @@ public class SchedulePL {
             BigDecimal sum = total.stream().reduce(BigDecimal.ZERO, BigDecimal::add);
 
 
-            if (sum.compareTo(new BigDecimal("9999999999999999.99")) > 0) {
+            if (sum.compareTo(MAX_ALLOWED_TOTAL) > 0) {
                 log.error("Calculated total exceeds maximum allowed value for trader ID {}: {}", traderId, sum);
                 continue;
             }

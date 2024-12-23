@@ -31,6 +31,8 @@ public class WalletService {
     @Autowired
     private WalletMapper walletMapper;
 
+    private static final String CURRENCY_USDT = "USDT";
+
     public Wallet createWallet(Trader trader, String currency) {
         Wallet wallet = Wallet.builder()
                 .trader(trader)
@@ -46,7 +48,7 @@ public class WalletService {
     }
 
     public void transferUsdtToWallet(Trader trader, BigDecimal amount) {
-        Wallet usdtWallet = findOrCreateWallet(trader, "USDT");
+        Wallet usdtWallet = findOrCreateWallet(trader, CURRENCY_USDT);
 
         if (trader.getUsdtBalance().compareTo(amount) < 0) {
             throw new IllegalArgumentException("Insufficient USDT balance in trader's account");
