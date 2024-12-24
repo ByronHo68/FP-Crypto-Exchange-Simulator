@@ -47,14 +47,18 @@ public class ScheduleBinanceService {
             long endTime = endDateTime.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
 
             List<Candle> candles = fetchHistoricalData(symbol, startTime, endTime);
-            if (candles.size() < 1440) {
-                log.warn("Only {} candles retrieved for {}. Attempting to fetch missing candle.", candles.size(), symbol);
+
+            int attempts = 0;
+            while (candles.size() < 1440 && attempts < 3) {
+                log.warn("Only {} candles retrieved for {}. Attempting to fetch missing candles (Attempt {}/{})", candles.size(), symbol, attempts + 1, 3);
                 TimeUnit.SECONDS.sleep(10);
                 fetchMissingCandle(symbol, startTime, endTime);
+                candles = fetchHistoricalData(symbol, startTime, endTime);
+                attempts++;
             }
-            else{candleRepository.saveAll(candles);}
-            log.info("Stored {} candles for {}", candles.size(), symbol);
 
+            candleRepository.saveAll(candles);
+            log.info("Stored {} candles for {}", candles.size(), symbol);
 
         } catch (IOException | InterruptedException e) {
             log.error("Error fetching data for {}: {}", symbol, e.getMessage());
