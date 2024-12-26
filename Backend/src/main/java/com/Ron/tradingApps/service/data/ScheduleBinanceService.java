@@ -32,7 +32,7 @@ public class ScheduleBinanceService {
     @Autowired
     private CandleRepository candleRepository;
 
-    @Scheduled(cron = "0 1 0 * * *", zone = "Asia/Hong_Kong")
+    @Scheduled(cron = "26 1 0 * * *", zone = "Asia/Hong_Kong")
     public void run() throws Exception {
         fetchAndStoreData("BTCUSDT");
         fetchAndStoreData("ETHUSDT");
@@ -49,14 +49,13 @@ public class ScheduleBinanceService {
             List<Candle> candles = fetchHistoricalData(symbol, startTime, endTime);
 
             int attempts = 0;
-            while (candles.size() < 1440 && attempts < 3) {
+            while (candles.size() < 1440 && attempts < 12) {
                 log.warn("Only {} candles retrieved for {}. Attempting to fetch missing candles (Attempt {}/{})", candles.size(), symbol, attempts + 1, 3);
                 TimeUnit.SECONDS.sleep(10);
                 fetchMissingCandle(symbol, startTime, endTime);
                 candles = fetchHistoricalData(symbol, startTime, endTime);
                 attempts++;
             }
-
             candleRepository.saveAll(candles);
             log.info("Stored {} candles for {}", candles.size(), symbol);
 
