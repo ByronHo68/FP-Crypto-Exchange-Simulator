@@ -10,11 +10,12 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 public interface CandleRepository extends JpaRepository<Candle, Long> {
     List<Candle> findBySymbolAndFormattedTime(String symbol, String formattedTime);
 
-    List<Candle> findBySymbolAndDateAndFormattedTime(String symbol, LocalDate yesterday, String formattedTime);
+    Set<Candle> findBySymbolAndDateAndFormattedTime(String symbol, LocalDate yesterday, String formattedTime);
 
     List<Candle> findBySymbolAndOpenTimeBetween(String symbol, LocalDateTime startTime, LocalDateTime endTime);
     Optional<Candle> findBySymbolAndFormattedTimeAndDate(String symbol, String formattedTime, LocalDate date);

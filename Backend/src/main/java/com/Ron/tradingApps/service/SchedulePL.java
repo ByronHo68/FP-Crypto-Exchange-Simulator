@@ -39,9 +39,9 @@ public class SchedulePL {
     private static final String BUY_TYPE = "buy";
     private static final String SELL_TYPE = "sell";
 
-    @Scheduled(cron = "0 2 0 * * *", zone = "Asia/Hong_Kong")
+    @Scheduled(cron = "0 5 0 * * *", zone = "Asia/Hong_Kong")
     public void run() throws Exception {
-        log.info("Scheduled task started at 00:02 HKT.");
+        log.info("Scheduled task started at 00:05 HKT.");
         checkPL();
     }
 
@@ -59,7 +59,7 @@ public class SchedulePL {
             log.info("Total wallets and pending orders found for trader ID {}: {} and {}", traderId, allWallets.size(), pendingOrders.size());
 
             List<BigDecimal> total = new ArrayList<>();
-            LocalDateTime midNight = LocalDateTime.now().minusDays(1).withHour(0).withMinute(1).withSecond(0).withNano(0);
+            LocalDateTime midNight = LocalDateTime.now().minusDays(1).withHour(0).withMinute(0).withSecond(0).withNano(0);
 
             for (Wallet wallet : allWallets) {
                 if ("USDT".equals(wallet.getCurrency())) {

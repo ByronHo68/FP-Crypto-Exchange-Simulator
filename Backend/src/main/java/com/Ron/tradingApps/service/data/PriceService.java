@@ -12,10 +12,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
+import java.util.*;
 
 @Service
 public class PriceService {
@@ -51,10 +48,9 @@ public class PriceService {
     }
 
     private void updatePriceForSymbol(String symbol,LocalDate yesterday, String formattedTime, LocalDateTime now) {
-        List<Candle> candles = candleRepository.findBySymbolAndDateAndFormattedTime(symbol, yesterday, formattedTime);
-
+        Set<Candle> candles = candleRepository.findBySymbolAndDateAndFormattedTime(symbol, yesterday, formattedTime);
         if (!candles.isEmpty()) {
-            Candle candle = candles.get(0);
+            Candle candle = candles.iterator().next();
             double highPrice = candle.getHighPrice();
             double lowPrice = candle.getLowPrice();
             double openPrice = candle.getOpenPrice();
