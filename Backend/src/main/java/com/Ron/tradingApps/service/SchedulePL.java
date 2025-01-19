@@ -19,9 +19,8 @@ import org.springframework.stereotype.Service;
 import java.lang.reflect.Array;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+
 @Service
 @Slf4j
 @EnableScheduling
@@ -47,9 +46,19 @@ public class SchedulePL {
 
     public void checkPL() {
         log.info("Checking profit and loss for all traders.");
+        Map<String, BigDecimal> priceCache = new HashMap<>();
+        LocalDateTime midNight = LocalDateTime.now().minusDays(1).withHour(0).withMinute(0).withSecond(0).withNano(0);
+
+        priceCache.put("USDT", BigDecimal.ONE);
+        Optional<BigDecimal> btcPriceOpt = candleRepository.findClosePriceBySymbolAndOpenTime("BTCUSDT", midNight);
+        btcPriceOpt.ifPresent(price -> priceCache.put("BTCUSDT", price));
+        Optional<BigDecimal> ethPriceOpt = candleRepository.findClosePriceBySymbolAndOpenTime("ETHUSDT", midNight);
+        ethPriceOpt.ifPresent(price -> priceCache.put("ETHUSDT", price));
+
 
         List<Trader> allTraders = traderRepository.findAll();
         log.info("Total traders found: {}", allTraders.size());
+
 
         for (Trader trader : allTraders) {
             int traderId = trader.getId();
@@ -59,7 +68,6 @@ public class SchedulePL {
             log.info("Total wallets and pending orders found for trader ID {}: {} and {}", traderId, allWallets.size(), pendingOrders.size());
 
             List<BigDecimal> total = new ArrayList<>();
-            LocalDateTime midNight = LocalDateTime.now().minusDays(1).withHour(0).withMinute(0).withSecond(0).withNano(0);
 
             for (Wallet wallet : allWallets) {
                 if ("USDT".equals(wallet.getCurrency())) {
