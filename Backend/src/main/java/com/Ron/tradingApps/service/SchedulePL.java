@@ -37,6 +37,8 @@ public class SchedulePL {
     private static final BigDecimal MAX_ALLOWED_TOTAL = new BigDecimal("9999999999999999.99");
     private static final String BUY_TYPE = "buy";
     private static final String SELL_TYPE = "sell";
+    private static final String BTCUSDT = "BTCUSDT";
+    private static final String ETHUSDT = "ETHUSDT";
 
     @Scheduled(cron = "0 5 0 * * *", zone = "Asia/Hong_Kong")
     public void run() throws Exception {
@@ -70,29 +72,19 @@ public class SchedulePL {
             List<BigDecimal> total = new ArrayList<>();
 
             for (Wallet wallet : allWallets) {
-                if ("USDT".equals(wallet.getCurrency())) {
-                    total.add(wallet.getAmount());
-                    log.debug("Added USDT amount: {}", wallet.getAmount());
-                } else {
-                    BigDecimal walletAmount = wallet.getAmount();
-                    String walletCurrency = wallet.getCurrency();
-                    log.info("Querying close price for currency {} at time {}", walletCurrency, midNight);
+                String walletCurrency = wallet.getCurrency();
+                BigDecimal walletAmount = wallet.getAmount();
 
-                    Optional<BigDecimal> priceOpt = candleRepository.findClosePriceBySymbolAndOpenTime(walletCurrency, midNight);
-                    if (priceOpt.isPresent()) {
-                        BigDecimal price = priceOpt.get();
-                        total.add(price.multiply(walletAmount));
-                        log.debug("Added amount for currency {}: {} * {} = {}", walletCurrency, price, walletAmount, price.multiply(walletAmount));
-                    } else {
-                        log.warn("No close price found for currency: {} at time: {}", walletCurrency, midNight);
-                    }
+                if ("USDT".equals(walletCurrency)) {
+                    total.add(walletAmount);
+                } else {
+                    BigDecimal price = priceCache.getOrDefault(walletCurrency, BigDecimal.ZERO);
+                    total.add(price.multiply(walletAmount));
                 }
             }
 
-
             for (Order order : pendingOrders) {
-                Optional<BigDecimal> priceOpt = candleRepository.findClosePriceBySymbolAndOpenTime(order.getCurrency(), midNight);
-                BigDecimal price = priceOpt.orElse(BigDecimal.ZERO);
+                BigDecimal price = priceCache.getOrDefault(order.getCurrency(), BigDecimal.ZERO);
                 if (order.getBuyAndSellType().equalsIgnoreCase(SELL_TYPE)) {
                     total.add(price.multiply(order.getAmount()));
                 } else if (order.getBuyAndSellType().equalsIgnoreCase(BUY_TYPE)) {
