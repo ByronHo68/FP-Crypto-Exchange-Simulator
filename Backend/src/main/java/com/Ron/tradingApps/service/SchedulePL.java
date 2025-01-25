@@ -52,10 +52,10 @@ public class SchedulePL {
         LocalDateTime midNight = LocalDateTime.now().minusDays(1).withHour(0).withMinute(0).withSecond(0).withNano(0);
 
         priceCache.put("USDT", BigDecimal.ONE);
-        Optional<BigDecimal> btcPriceOpt = candleRepository.findClosePriceBySymbolAndOpenTime("BTCUSDT", midNight);
-        btcPriceOpt.ifPresent(price -> priceCache.put("BTCUSDT", price));
-        Optional<BigDecimal> ethPriceOpt = candleRepository.findClosePriceBySymbolAndOpenTime("ETHUSDT", midNight);
-        ethPriceOpt.ifPresent(price -> priceCache.put("ETHUSDT", price));
+        Optional<BigDecimal> btcPriceOpt = candleRepository.findClosePriceBySymbolAndOpenTime(BTCUSDT, midNight);
+        btcPriceOpt.ifPresent(price -> priceCache.put(BTCUSDT, price));
+        Optional<BigDecimal> ethPriceOpt = candleRepository.findClosePriceBySymbolAndOpenTime(ETHUSDT, midNight);
+        ethPriceOpt.ifPresent(price -> priceCache.put(ETHUSDT, price));
 
 
         List<Trader> allTraders = traderRepository.findAll();
