@@ -3,6 +3,8 @@ package com.Ron.tradingApps.service;
 import com.Ron.tradingApps.dto.response.OrderResponseDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import com.Ron.tradingApps.model.Cryptocurrencies;
+import java.util.Arrays;
 
 import java.math.BigDecimal;
 
@@ -19,7 +21,14 @@ public class PriceCheckService {
     public void checkAndExecuteTransaction(OrderResponseDTO orderResponse) {
         String currency = orderResponse.getCurrency();
 
-        if (!currency.equals("ETHUSDT") && !currency.equals("BTCUSDT")) {
+        /*if (!currency.equals("ETHUSDT") && !currency.equals("BTCUSDT")) {
+            throw new IllegalArgumentException("Unsupported currency: " + currency);
+        }*/
+
+        boolean isValidCurrency = Arrays.stream(Cryptocurrencies.Type.values())
+                .anyMatch(type -> type.name().equals(currency));
+
+        if (!isValidCurrency) {
             throw new IllegalArgumentException("Unsupported currency: " + currency);
         }
 
