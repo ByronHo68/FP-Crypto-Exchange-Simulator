@@ -23,8 +23,9 @@ public class DataFetcher implements CommandLineRunner {
     @Override
     public void run(String... args) throws Exception {
         if (isCandleTableEmpty()) {
-            fetchAndStoreData("BTCUSDT");
-            fetchAndStoreData("ETHUSDT");
+            Arrays.stream(Cryptocurrencies.Type.values()).forEach(crypto -> {
+                fetchAndStoreData(crypto.name());
+            });
         } else {
             System.out.println("Candle table already has data. Skipping data fetch.");
         }
