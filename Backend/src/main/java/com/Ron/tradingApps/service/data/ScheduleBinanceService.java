@@ -1,5 +1,6 @@
 package com.Ron.tradingApps.service.data;
 
+import com.Ron.tradingApps.model.Cryptocurrencies;
 import com.Ron.tradingApps.model.historicalData.Candle;
 import com.Ron.tradingApps.repository.CandleRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -34,8 +35,9 @@ public class ScheduleBinanceService {
 
     @Scheduled(cron = "0 2 0 * * *", zone = "Asia/Hong_Kong")
     public void run() throws Exception {
-        fetchAndStoreData("BTCUSDT");
-        fetchAndStoreData("ETHUSDT");
+        for (Cryptocurrencies.Type crypto : Cryptocurrencies.Type.values()) {
+            fetchAndStoreData(crypto.name());
+        }
     }
 
     private void fetchAndStoreData(String symbol) {
