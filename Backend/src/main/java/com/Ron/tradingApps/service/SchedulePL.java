@@ -1,6 +1,7 @@
 package com.Ron.tradingApps.service;
 
 import com.Ron.tradingApps.dto.TraderDTO;
+import com.Ron.tradingApps.model.Cryptocurrencies;
 import com.Ron.tradingApps.model.Order;
 import com.Ron.tradingApps.model.Trader;
 import com.Ron.tradingApps.model.Wallet;
@@ -37,8 +38,7 @@ public class SchedulePL {
     private static final BigDecimal MAX_ALLOWED_TOTAL = new BigDecimal("9999999999999999.99");
     private static final String BUY_TYPE = "buy";
     private static final String SELL_TYPE = "sell";
-    private static final String BTCUSDT = "BTCUSDT";
-    private static final String ETHUSDT = "ETHUSDT";
+    private static final String USDT = "USDT";
 
     @Scheduled(cron = "0 5 0 * * *", zone = "Asia/Hong_Kong")
     public void run() throws Exception {
@@ -51,11 +51,12 @@ public class SchedulePL {
         Map<String, BigDecimal> priceCache = new HashMap<>();
         LocalDateTime midNight = LocalDateTime.now().minusDays(1).withHour(0).withMinute(0).withSecond(0).withNano(0);
 
-        priceCache.put("USDT", BigDecimal.ONE);
-        Optional<BigDecimal> btcPriceOpt = candleRepository.findClosePriceBySymbolAndOpenTime(BTCUSDT, midNight);
-        btcPriceOpt.ifPresent(price -> priceCache.put(BTCUSDT, price));
-        Optional<BigDecimal> ethPriceOpt = candleRepository.findClosePriceBySymbolAndOpenTime(ETHUSDT, midNight);
-        ethPriceOpt.ifPresent(price -> priceCache.put(ETHUSDT, price));
+        priceCache.put(USDT, BigDecimal.ONE);
+        for (Cryptocurrencies.Type crypto : Cryptocurrencies.Type.values()) {
+            String symbol = crypto.name();
+            Optional<BigDecimal> priceOpt = candleRepository.findClosePriceBySymbolAndOpenTime(symbol, midNight);
+            priceOpt.ifPresent(price -> priceCache.put(symbol, price));
+        }
 
 
         List<Trader> allTraders = traderRepository.findAll();
@@ -75,7 +76,7 @@ public class SchedulePL {
                 String walletCurrency = wallet.getCurrency();
                 BigDecimal walletAmount = wallet.getAmount();
 
-                if ("USDT".equals(walletCurrency)) {
+                if (USDT.equals(walletCurrency)) {
                     total.add(walletAmount);
                 } else {
                     BigDecimal price = priceCache.getOrDefault(walletCurrency, BigDecimal.ZERO);
