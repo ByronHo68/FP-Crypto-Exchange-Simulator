@@ -64,6 +64,10 @@ public class SchedulePL {
 
 
         for (Trader trader : allTraders) {
+            //pls create another methode for clean code!
+            processTrader(trader, priceCache);
+
+            //pls follow this logic
             int traderId = trader.getId();
             log.info("Processing trader ID: {}", traderId);
             List<Wallet> allWallets = walletRepository.findByTraderId(traderId);
@@ -111,4 +115,14 @@ public class SchedulePL {
             }
         }
     }
+
+    private void processTrader(Trader trader, Map<String, BigDecimal> priceCache) {
+        //first method for find all the pending orders, wallets and save it in the database
+    }
+
+    private void calculateTotal(List<Wallet> wallets, List<Order> pendingOrders, Map<String, BigDecimal> priceCache) {
+        //second sum up these value in the cache memory
+        //return type should be BigDecimal
+    }
+
 }
