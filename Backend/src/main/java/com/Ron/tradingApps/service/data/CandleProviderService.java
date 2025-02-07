@@ -1,6 +1,7 @@
 package com.Ron.tradingApps.service.data;
 
 import com.Ron.tradingApps.dto.CandleDTO;
+import com.Ron.tradingApps.model.Cryptocurrencies;
 import com.Ron.tradingApps.model.historicalData.Candle;
 import com.Ron.tradingApps.repository.CandleRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -61,6 +62,9 @@ public class CandleProviderService {
         if (currentMinute != lastUpdatedMinute) {
             messagingTemplate.convertAndSend("/topic/candles/BTCUSDT", fetchLeastCandles("BTCUSDT"));
             messagingTemplate.convertAndSend("/topic/candles/ETHUSDT", fetchLeastCandles("ETHUSDT"));
+/*
+            messagingTemplate.convertAndSend("/topic/candles/SOLUSDT", fetchLeastCandles(String.valueOf(Cryptocurrencies.Type.SOLUSDT)));
+*/
 
             lastUpdatedMinute = currentMinute;
         }

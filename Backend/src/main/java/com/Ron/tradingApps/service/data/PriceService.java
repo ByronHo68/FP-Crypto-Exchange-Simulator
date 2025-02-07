@@ -1,5 +1,6 @@
 package com.Ron.tradingApps.service.data;
 
+import com.Ron.tradingApps.model.Cryptocurrencies;
 import com.Ron.tradingApps.model.historicalData.Candle;
 import com.Ron.tradingApps.repository.CandleRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,7 +28,10 @@ public class PriceService {
 
     @Autowired
     public PriceService(CandleRepository candleRepository) {
-        this.candleRepository = candleRepository;
+        this.candleRepository = candleRepository;/*
+        priceMap.put(String.valueOf(Cryptocurrencies.Type.SOLUSDT), 0.0);
+*/
+
         priceMap.put("BTCUSDT", 0.0);
         priceMap.put("ETHUSDT", 0.0);
     }
@@ -41,9 +45,16 @@ public class PriceService {
 
         updatePriceForSymbol("BTCUSDT", yesterday, formattedTime, now);
         updatePriceForSymbol("ETHUSDT", yesterday, formattedTime, now);
+/*
+        updatePriceForSymbol(String.valueOf(Cryptocurrencies.Type.SOLUSDT), yesterday, formattedTime, now);
+*/
 
         messagingTemplate.convertAndSend("/topic/currentPrice/BTCUSDT", priceMap.get("BTCUSDT"));
         messagingTemplate.convertAndSend("/topic/currentPrice/ETHUSDT", priceMap.get("ETHUSDT"));
+/*
+        messagingTemplate.convertAndSend("/topic/currentPrice/SOLUSDT", priceMap.get(String.valueOf(Cryptocurrencies.Type.SOLUSDT)));
+*/
+
 
     }
 
