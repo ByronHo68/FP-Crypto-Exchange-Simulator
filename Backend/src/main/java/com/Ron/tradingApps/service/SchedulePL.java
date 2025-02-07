@@ -64,9 +64,8 @@ public class SchedulePL {
 
 
         for (Trader trader : allTraders) {
-            //pls create another methode for clean code!
             processTrader(trader, priceCache);
-
+/*
             //pls follow this logic
             int traderId = trader.getId();
             log.info("Processing trader ID: {}", traderId);
@@ -112,17 +111,60 @@ public class SchedulePL {
                 log.info("Trader ID {}: Total yesterday price calculated: {}", traderId, sum);
             } catch (Exception e) {
                 log.error("Failed to save trader ID {} with yesterday price {}: {}", traderId, sum, e.getMessage());
-            }
+            }*/
         }
     }
 
     private void processTrader(Trader trader, Map<String, BigDecimal> priceCache) {
         //first method for find all the pending orders, wallets and save it in the database
+        int traderId = trader.getId();
+        log.info("Processing trader ID: {}", traderId);
+        List<Wallet> allWallets = walletRepository.findByTraderId(traderId);
+        List<Order> pendingOrders = orderRepository.findPendingOrdersByTraderId(traderId);
+        log.info("Total wallets and pending orders found for trader ID {}: {} and {}", traderId, allWallets.size(), pendingOrders.size());
+
+        BigDecimal total = calculateTotal(allWallets, pendingOrders, priceCache);
+
+        if (total.compareTo(MAX_ALLOWED_TOTAL) > 0) {
+            log.error("Calculated total exceeds maximum allowed value for trader ID {}: {}", traderId, total);
+            return;
+        }
+
+        trader.setYesterdayPrice(total);
+
+        try {
+            traderRepository.save(trader);
+            log.info("Trader ID {}: Total yesterday price calculated: {}", traderId, total);
+        } catch (Exception e) {
+            log.error("Failed to save trader ID {} with yesterday price {}: {}", traderId, total, e.getMessage());
+        }
     }
 
-    private void calculateTotal(List<Wallet> wallets, List<Order> pendingOrders, Map<String, BigDecimal> priceCache) {
+    private BigDecimal calculateTotal(List<Wallet> wallets, List<Order> pendingOrders, Map<String, BigDecimal> priceCache) {
         //second sum up these value in the cache memory
         //return type should be BigDecimal
+        BigDecimal walletTotal = wallets.stream()
+                .map(wallet -> {
+                    String currency = wallet.getCurrency();
+                    BigDecimal amount = wallet.getAmount();
+                    BigDecimal price = USDT.equals(currency) ? BigDecimal.ONE : priceCache.getOrDefault(currency, BigDecimal.ZERO);
+                    return price.multiply(amount);
+                })
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        BigDecimal orderTotal = pendingOrders.stream()
+                .map(order -> {
+                    BigDecimal price = priceCache.getOrDefault(order.getCurrency(), BigDecimal.ZERO);
+                    if (order.getBuyAndSellType().equalsIgnoreCase(SELL_TYPE)) {
+                        return price.multiply(order.getAmount());
+                    } else if (order.getBuyAndSellType().equalsIgnoreCase(BUY_TYPE)) {
+                        return order.getPrice().multiply(order.getAmount());
+                    }
+                    return BigDecimal.ZERO;
+                })
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        return walletTotal.add(orderTotal);
     }
 
 }

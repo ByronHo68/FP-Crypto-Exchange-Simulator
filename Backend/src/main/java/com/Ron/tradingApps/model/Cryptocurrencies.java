@@ -4,6 +4,6 @@ public class Cryptocurrencies {
     public enum Type{
         BTCUSDT,
         ETHUSDT,
-        SOLUSDT
+        /*SOLUSDT*/
     }
 }
