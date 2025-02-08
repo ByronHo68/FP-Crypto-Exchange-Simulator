@@ -42,6 +42,7 @@ public class WebSecurityConfig {
                         .requestMatchers("/api/orders/**").hasAuthority("USER")
                         .requestMatchers("/ws/topic/orders/pending/**").hasAuthority("USER")
                         .requestMatchers("/ws/topic/wallets/**").hasAuthority("USER")
+                        .requestMatchers("/api/actuator/health").permitAll()
                         .anyRequest().authenticated()
         );
         http.oauth2ResourceServer().jwt();

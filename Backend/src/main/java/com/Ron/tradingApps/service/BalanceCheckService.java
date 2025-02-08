@@ -2,6 +2,7 @@ package com.Ron.tradingApps.service;
 
 import com.Ron.tradingApps.dto.WalletDTO;
 import com.Ron.tradingApps.dto.request.OrderRequestDTO;
+import com.Ron.tradingApps.model.BuyAndSell;
 import com.Ron.tradingApps.model.Trader;
 import com.Ron.tradingApps.model.Wallet;
 import com.Ron.tradingApps.repository.TraderRepository;
@@ -35,7 +36,7 @@ public class BalanceCheckService {
 
 
         BigDecimal totalCost = requestDTO.getPrice().multiply(requestDTO.getAmount());
-        if ("Buy".equalsIgnoreCase(requestDTO.getBuyAndSellType())) {
+        if (String.valueOf(BuyAndSell.Type.Buy).equalsIgnoreCase(requestDTO.getBuyAndSellType())) {
             if (usdtWallet.getAmount().compareTo(totalCost) > 0) {
                 return;
                 /*// Deduct USDT from trader's balance
@@ -50,7 +51,7 @@ public class BalanceCheckService {
         }
 
         // Check sell order
-        if ("Sell".equalsIgnoreCase(requestDTO.getBuyAndSellType())) {
+        if (String.valueOf(BuyAndSell.Type.Sell).equalsIgnoreCase(requestDTO.getBuyAndSellType())) {
             if (requestDTO.getAmount().compareTo(wallet.getAmount()) < 0) {
                 return;
                 /*// Deduct amount from wallet

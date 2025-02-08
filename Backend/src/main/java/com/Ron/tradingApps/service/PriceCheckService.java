@@ -1,6 +1,7 @@
 package com.Ron.tradingApps.service;
 
 import com.Ron.tradingApps.dto.response.OrderResponseDTO;
+import com.Ron.tradingApps.model.BuyAndSell;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.Ron.tradingApps.model.Cryptocurrencies;
@@ -42,7 +43,7 @@ public class PriceCheckService {
             BigDecimal lowerBound = latestPriceBD.subtract(onePercentDifference);
             BigDecimal upperBound = latestPriceBD.add(onePercentDifference);
 
-            if(orderResponse.getBuyAndSellType().equalsIgnoreCase("sell") && orderPrice.compareTo(lowerBound) >= 0 && orderPrice.compareTo(upperBound) <= 0){
+            if(orderResponse.getBuyAndSellType().equalsIgnoreCase(String.valueOf(BuyAndSell.Type.Sell)) && orderPrice.compareTo(lowerBound) >= 0 && orderPrice.compareTo(upperBound) <= 0){
                 transactionService.createTransaction(orderResponse);
                 //set price limit for here if needed
             }
