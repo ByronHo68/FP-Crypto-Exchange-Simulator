@@ -6,10 +6,7 @@ import com.Ron.tradingApps.dto.response.OrderResponseDTO;
 import com.Ron.tradingApps.dto.response.TransactionResponseDTO;
 import com.Ron.tradingApps.dto.response.WalletWebsocketDTO;
 import com.Ron.tradingApps.mapper.OrderMapper;
-import com.Ron.tradingApps.model.Order;
-import com.Ron.tradingApps.model.Trader;
-import com.Ron.tradingApps.model.Transaction;
-import com.Ron.tradingApps.model.Wallet;
+import com.Ron.tradingApps.model.*;
 import com.Ron.tradingApps.repository.OrderRepository;
 import com.Ron.tradingApps.repository.TraderRepository;
 import com.Ron.tradingApps.repository.WalletRepository;
@@ -53,9 +50,6 @@ public class OrderService {
     private SimpMessagingTemplate messagingTemplate;
     @Autowired
     private PriceService priceService;
-
-    private static final String BUY_TYPE = "buy";
-    private static final String SELL_TYPE = "sell";
     private static final String CURRENCY_USDT = "USDT";
     private static final String LIMIT_TYPE = "limit";
 
@@ -78,7 +72,7 @@ public class OrderService {
         order = orderRepository.save(order);
         String userId = trader.getUserId();
 
-        if (BUY_TYPE.equalsIgnoreCase(order.getBuyAndSellType())) {
+        if (String.valueOf(BuyAndSell.Type.Buy).equalsIgnoreCase(order.getBuyAndSellType())) {
             BigDecimal cost = order.getPrice().multiply(order.getAmount());
             Wallet usdtWallet = walletService.findOrCreateWallet(trader, CURRENCY_USDT);
 
@@ -98,7 +92,7 @@ public class OrderService {
 
             messagingTemplate.convertAndSend("/topic/wallets/" + userId, usdtWalletDTO);
 
-        } else if (SELL_TYPE.equalsIgnoreCase(order.getBuyAndSellType())) {
+        } else if (String.valueOf(BuyAndSell.Type.Sell).equalsIgnoreCase(order.getBuyAndSellType())) {
             Wallet currencyWallet = walletService.findOrCreateWallet(trader, order.getCurrency());
 
             if (currencyWallet.getAmount().compareTo(order.getAmount()) < 0) {
@@ -179,11 +173,11 @@ public class OrderService {
 
         Wallet walletToUpdate = null;
 
-        if (BUY_TYPE.equalsIgnoreCase(existingOrder.getBuyAndSellType())) {
+        if (String.valueOf(BuyAndSell.Type.Buy).equalsIgnoreCase(existingOrder.getBuyAndSellType())) {
             walletToUpdate = walletService.findOrCreateWallet(trader, CURRENCY_USDT);
             walletToUpdate.setAmount(walletToUpdate.getAmount().add(existingOrder.getAmount()));
             log.info("Updated USDT wallet for trader {}: new amount is {}", userId, walletToUpdate.getAmount());
-        } else if (SELL_TYPE.equalsIgnoreCase(existingOrder.getBuyAndSellType())) {
+        } else if (String.valueOf(BuyAndSell.Type.Sell).equalsIgnoreCase(existingOrder.getBuyAndSellType())) {
             walletToUpdate = walletService.findOrCreateWallet(trader, existingOrder.getCurrency());
             walletToUpdate.setAmount(walletToUpdate.getAmount().add(existingOrder.getAmount()));
             log.info("Updated {} wallet for trader {}: new amount is {}", existingOrder.getCurrency(), userId, walletToUpdate.getAmount());
