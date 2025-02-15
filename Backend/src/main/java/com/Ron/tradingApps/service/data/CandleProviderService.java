@@ -1,7 +1,6 @@
 package com.Ron.tradingApps.service.data;
 
 import com.Ron.tradingApps.dto.CandleDTO;
-import com.Ron.tradingApps.model.Cryptocurrencies;
 import com.Ron.tradingApps.model.historicalData.Candle;
 import com.Ron.tradingApps.repository.CandleRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -10,10 +9,7 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;

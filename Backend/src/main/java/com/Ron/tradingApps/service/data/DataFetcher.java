@@ -1,12 +1,11 @@
 package com.Ron.tradingApps.service.data;
 
-import com.Ron.tradingApps.model.Cryptocurrencies;
+import com.Ron.tradingApps.model.type.Cryptocurrencies;
 import com.Ron.tradingApps.model.historicalData.Candle;
 import com.Ron.tradingApps.repository.CandleRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
-import com.Ron.tradingApps.model.Cryptocurrencies.Type;
 
 
 import java.io.IOException;

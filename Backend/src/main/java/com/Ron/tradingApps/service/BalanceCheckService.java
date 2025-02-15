@@ -1,8 +1,7 @@
 package com.Ron.tradingApps.service;
 
-import com.Ron.tradingApps.dto.WalletDTO;
 import com.Ron.tradingApps.dto.request.OrderRequestDTO;
-import com.Ron.tradingApps.model.BuyAndSell;
+import com.Ron.tradingApps.model.type.BuyAndSell;
 import com.Ron.tradingApps.model.Trader;
 import com.Ron.tradingApps.model.Wallet;
 import com.Ron.tradingApps.repository.TraderRepository;

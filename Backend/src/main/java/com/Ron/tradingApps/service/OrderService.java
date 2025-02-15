@@ -3,10 +3,10 @@ package com.Ron.tradingApps.service;
 import com.Ron.tradingApps.dto.OrderDTO;
 import com.Ron.tradingApps.dto.request.OrderRequestDTO;
 import com.Ron.tradingApps.dto.response.OrderResponseDTO;
-import com.Ron.tradingApps.dto.response.TransactionResponseDTO;
 import com.Ron.tradingApps.dto.response.WalletWebsocketDTO;
 import com.Ron.tradingApps.mapper.OrderMapper;
 import com.Ron.tradingApps.model.*;
+import com.Ron.tradingApps.model.type.BuyAndSell;
 import com.Ron.tradingApps.repository.OrderRepository;
 import com.Ron.tradingApps.repository.TraderRepository;
 import com.Ron.tradingApps.repository.WalletRepository;
@@ -21,7 +21,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service

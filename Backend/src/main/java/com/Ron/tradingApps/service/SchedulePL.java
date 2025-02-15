@@ -1,23 +1,19 @@
 package com.Ron.tradingApps.service;
 
-import com.Ron.tradingApps.dto.TraderDTO;
-import com.Ron.tradingApps.model.Cryptocurrencies;
+import com.Ron.tradingApps.model.type.Cryptocurrencies;
 import com.Ron.tradingApps.model.Order;
 import com.Ron.tradingApps.model.Trader;
 import com.Ron.tradingApps.model.Wallet;
-import com.Ron.tradingApps.model.historicalData.Candle;
 import com.Ron.tradingApps.repository.CandleRepository;
 import com.Ron.tradingApps.repository.OrderRepository;
 import com.Ron.tradingApps.repository.TraderRepository;
 import com.Ron.tradingApps.repository.WalletRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.CommandLineRunner;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
-import java.lang.reflect.Array;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.*;

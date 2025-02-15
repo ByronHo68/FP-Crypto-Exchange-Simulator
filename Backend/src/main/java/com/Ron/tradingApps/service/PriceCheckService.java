@@ -1,16 +1,15 @@
 package com.Ron.tradingApps.service;
 
 import com.Ron.tradingApps.dto.response.OrderResponseDTO;
-import com.Ron.tradingApps.model.BuyAndSell;
+import com.Ron.tradingApps.model.type.BuyAndSell;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import com.Ron.tradingApps.model.Cryptocurrencies;
+import com.Ron.tradingApps.model.type.Cryptocurrencies;
 import java.util.Arrays;
 
 import java.math.BigDecimal;
 
 import com.Ron.tradingApps.service.data.*;
-import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class PriceCheckService {

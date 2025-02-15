@@ -1,6 +1,6 @@
 package com.Ron.tradingApps.service.data;
 
-import com.Ron.tradingApps.model.Cryptocurrencies;
+import com.Ron.tradingApps.model.type.Cryptocurrencies;
 import com.Ron.tradingApps.model.historicalData.Candle;
 import com.Ron.tradingApps.repository.CandleRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -9,7 +9,6 @@ import okhttp3.Request;
 import okhttp3.Response;
 import org.json.JSONArray;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.CommandLineRunner;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
