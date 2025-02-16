@@ -14,6 +14,7 @@ import com.Ron.tradingApps.model.Order;
 import com.Ron.tradingApps.model.Trader;
 import com.Ron.tradingApps.model.Transaction;
 import com.Ron.tradingApps.model.Wallet;
+import com.Ron.tradingApps.model.type.BuyAndSell;
 import com.Ron.tradingApps.repository.OrderRepository;
 import com.Ron.tradingApps.repository.TraderRepository;
 import com.Ron.tradingApps.repository.TransactionRepository;
@@ -60,9 +61,6 @@ public class TransactionService {
 
     @Autowired
     private TransactionMapper transactionMapper;
-
-    private static final String BUY_TYPE = "buy";
-    private static final String SELL_TYPE = "sell";
     private static final String CURRENCY_USDT = "USDT";
 
     @Transactional
@@ -102,7 +100,7 @@ public class TransactionService {
         BigDecimal price = transaction.getPrice();
 
 
-        if (BUY_TYPE.equalsIgnoreCase(transaction.getBuyOrSellType())) {
+        if (String.valueOf(BuyAndSell.Type.Buy).equalsIgnoreCase(transaction.getBuyOrSellType())) {
             Wallet usdtWallet = walletService.findOrCreateWallet(trader, CURRENCY_USDT);
 
 
@@ -115,7 +113,7 @@ public class TransactionService {
 
             return createWalletResponse(trader, usdtWallet, currencyWallet);
 
-        } else if (SELL_TYPE.equalsIgnoreCase(transaction.getBuyOrSellType())) {
+        } else if (String.valueOf(BuyAndSell.Type.Sell).equalsIgnoreCase(transaction.getBuyOrSellType())) {
 
             Wallet currencyWallet = walletService.findByIdAndCurrencyOrCreate(trader.getId(), transaction.getCurrency());
             if (currencyWallet == null || currencyWallet.getAmount().compareTo(amount) < 0) {
