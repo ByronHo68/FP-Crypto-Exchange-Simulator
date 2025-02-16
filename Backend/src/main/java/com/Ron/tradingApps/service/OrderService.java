@@ -7,6 +7,8 @@ import com.Ron.tradingApps.dto.response.WalletWebsocketDTO;
 import com.Ron.tradingApps.mapper.OrderMapper;
 import com.Ron.tradingApps.model.*;
 import com.Ron.tradingApps.model.type.BuyAndSell;
+import com.Ron.tradingApps.model.type.Cryptocurrencies;
+import com.Ron.tradingApps.model.type.MarketAndLimit;
 import com.Ron.tradingApps.repository.OrderRepository;
 import com.Ron.tradingApps.repository.TraderRepository;
 import com.Ron.tradingApps.repository.WalletRepository;
@@ -50,7 +52,6 @@ public class OrderService {
     @Autowired
     private PriceService priceService;
     private static final String CURRENCY_USDT = "USDT";
-    private static final String LIMIT_TYPE = "limit";
 
 
     @Transactional
@@ -110,10 +111,10 @@ public class OrderService {
 
             messagingTemplate.convertAndSend("/topic/wallets/" + userId, currencyWalletDTO);
         }
-        if(LIMIT_TYPE.equalsIgnoreCase(order.getMarketOrLimitOrderTypes())) {
+        if(String.valueOf(MarketAndLimit.Type.limit).equalsIgnoreCase(order.getMarketOrLimitOrderTypes())) {
             String currency = order.getCurrency();
 
-            if (!currency.equals("ETHUSDT") && !currency.equals("BTCUSDT")) {
+            if (!isSupportedCurrency(currency)) {
                 throw new IllegalArgumentException("Unsupported currency: " + currency);
             }
 
@@ -139,6 +140,15 @@ public class OrderService {
             }
         }
         return OrderMapper.toResponseDTO(order);
+    }
+
+    private boolean isSupportedCurrency(String currency) {
+        for (Cryptocurrencies.Type type : Cryptocurrencies.Type.values()) {
+            if (type.name().equals(currency)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private boolean isOrderPriceWithinBounds(BigDecimal orderPrice, BigDecimal latestPriceBD) {

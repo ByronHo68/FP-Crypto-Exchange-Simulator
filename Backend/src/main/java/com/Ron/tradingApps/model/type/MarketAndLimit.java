@@ -1,6 +1,7 @@
 package com.Ron.tradingApps.model.type;
 
 import lombok.Data;
+import lombok.Getter;
 
 @Data
 public class MarketAndLimit {
@@ -9,7 +10,6 @@ public class MarketAndLimit {
         Market,
         limit;
         private String type;
-        public String getType(){return type;}
     }
 
 }
