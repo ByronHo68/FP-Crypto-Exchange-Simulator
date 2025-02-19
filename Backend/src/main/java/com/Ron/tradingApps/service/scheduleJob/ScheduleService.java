@@ -1,9 +1,10 @@
-package com.Ron.tradingApps.service;
+package com.Ron.tradingApps.service.scheduleJob;
 
 import com.Ron.tradingApps.dto.response.OrderResponseDTO;
 import com.Ron.tradingApps.mapper.OrderMapper;
 import com.Ron.tradingApps.model.Order;
 import com.Ron.tradingApps.repository.OrderRepository;
+import com.Ron.tradingApps.service.order.PriceCheckService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;

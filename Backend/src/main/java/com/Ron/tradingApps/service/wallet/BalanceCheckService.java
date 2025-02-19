@@ -1,4 +1,4 @@
-package com.Ron.tradingApps.service;
+package com.Ron.tradingApps.service.wallet;
 
 import com.Ron.tradingApps.dto.request.OrderRequestDTO;
 import com.Ron.tradingApps.model.type.BuyAndSell;
@@ -6,6 +6,7 @@ import com.Ron.tradingApps.model.Trader;
 import com.Ron.tradingApps.model.Wallet;
 import com.Ron.tradingApps.repository.TraderRepository;
 import com.Ron.tradingApps.repository.WalletRepository;
+import com.Ron.tradingApps.service.wallet.WalletService;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;

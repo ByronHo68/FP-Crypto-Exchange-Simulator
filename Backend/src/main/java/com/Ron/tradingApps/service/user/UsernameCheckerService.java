@@ -1,4 +1,4 @@
-package com.Ron.tradingApps.service;
+package com.Ron.tradingApps.service.user;
 
 import com.Ron.tradingApps.dto.request.OrderRequestDTO;
 import com.Ron.tradingApps.model.Order;

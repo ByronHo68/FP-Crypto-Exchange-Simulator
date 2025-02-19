@@ -1,15 +1,12 @@
 package com.Ron.tradingApps.controller.admin;
 
 import com.Ron.tradingApps.dto.request.InstructorRequestDTO;
-import com.Ron.tradingApps.dto.request.TraderRequestDTO;
 import com.Ron.tradingApps.dto.response.InstructorResponseDTO;
-import com.Ron.tradingApps.dto.response.TraderResponseDTO;
 import com.Ron.tradingApps.mapper.InstructorMapper;
 import com.Ron.tradingApps.mapper.TraderMapper;
 import com.Ron.tradingApps.model.Instructor;
-import com.Ron.tradingApps.model.Trader;
-import com.Ron.tradingApps.service.InstructorService;
-import com.Ron.tradingApps.service.TraderService;
+import com.Ron.tradingApps.service.user.InstructorService;
+import com.Ron.tradingApps.service.user.TraderService;
 import jakarta.validation.Valid;
 import org.apache.velocity.exception.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;

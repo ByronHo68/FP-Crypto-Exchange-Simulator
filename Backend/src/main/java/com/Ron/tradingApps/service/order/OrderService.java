@@ -1,4 +1,4 @@
-package com.Ron.tradingApps.service;
+package com.Ron.tradingApps.service.order;
 
 import com.Ron.tradingApps.dto.OrderDTO;
 import com.Ron.tradingApps.dto.request.OrderRequestDTO;
@@ -13,6 +13,7 @@ import com.Ron.tradingApps.repository.OrderRepository;
 import com.Ron.tradingApps.repository.TraderRepository;
 import com.Ron.tradingApps.repository.WalletRepository;
 import com.Ron.tradingApps.service.data.PriceService;
+import com.Ron.tradingApps.service.wallet.WalletService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.velocity.exception.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;

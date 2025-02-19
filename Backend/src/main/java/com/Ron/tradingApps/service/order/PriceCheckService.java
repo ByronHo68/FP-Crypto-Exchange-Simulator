@@ -1,4 +1,4 @@
-package com.Ron.tradingApps.service;
+package com.Ron.tradingApps.service.order;
 
 import com.Ron.tradingApps.dto.response.OrderResponseDTO;
 import com.Ron.tradingApps.model.type.BuyAndSell;

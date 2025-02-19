@@ -1,14 +1,13 @@
-package com.Ron.tradingApps.service;
+package com.Ron.tradingApps.service.wallet;
 
-import com.Ron.tradingApps.dto.response.OrderResponseDTO;
 import com.Ron.tradingApps.dto.response.WalletDResponseDTO;
 import com.Ron.tradingApps.mapper.WalletMapper;
-import com.Ron.tradingApps.model.Order;
 import com.Ron.tradingApps.model.Trader;
 import com.Ron.tradingApps.dto.WalletDTO;
 import com.Ron.tradingApps.model.Wallet;
 import com.Ron.tradingApps.repository.TraderRepository;
 import com.Ron.tradingApps.repository.WalletRepository;
+import com.Ron.tradingApps.service.user.TraderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

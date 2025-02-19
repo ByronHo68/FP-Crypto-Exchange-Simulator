@@ -1,4 +1,4 @@
-package com.Ron.tradingApps.service;
+package com.Ron.tradingApps.service.scheduleJob;
 
 import com.Ron.tradingApps.model.type.Cryptocurrencies;
 import com.Ron.tradingApps.model.Order;
