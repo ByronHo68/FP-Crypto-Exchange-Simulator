@@ -1,5 +1,6 @@
 package com.Ron.tradingApps.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.*;
 import org.checkerframework.checker.units.qual.A;
@@ -17,6 +18,7 @@ import java.util.Objects;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "trader")
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class Trader extends AppsUser {
 
 

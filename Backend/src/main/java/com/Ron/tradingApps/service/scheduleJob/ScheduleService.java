@@ -29,7 +29,7 @@ public class ScheduleService {
                 List<Order> pendingOrders = orderRepository.findAllPendingOrders();
 
                 for (Order order : pendingOrders) {
-                        OrderResponseDTO orderResponseDTO = orderMapper.toResponseDTO(order);
+                        OrderResponseDTO orderResponseDTO = OrderMapper.toResponseDTO(order);
 
                         try {
                                 priceCheckService.checkAndExecuteTransaction(orderResponseDTO);

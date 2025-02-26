@@ -1,5 +1,6 @@
 package com.Ron.tradingApps.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Data;
@@ -16,6 +17,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @ToString
 @Table(uniqueConstraints = { @UniqueConstraint(columnNames = { "trader_id", "currency"})})
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class Wallet {
 
     @Id

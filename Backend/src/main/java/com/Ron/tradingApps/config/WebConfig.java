@@ -26,6 +26,7 @@ public class WebConfig implements WebMvcConfigurer {
 
         registry.addMapping("/api/**")
                 .allowedOrigins(corsProperties.getAllowedOrigins())
+                //.allowedOrigins("http://byronho.online")
                 .allowedMethods("*")
                 .allowCredentials(true)
                 .allowedHeaders("*");
