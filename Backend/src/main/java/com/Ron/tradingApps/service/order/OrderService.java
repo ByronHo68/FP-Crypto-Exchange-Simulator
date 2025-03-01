@@ -112,7 +112,7 @@ public class OrderService {
 
             messagingTemplate.convertAndSend("/topic/wallets/" + userId, currencyWalletDTO);
         }
-        if(String.valueOf(MarketAndLimit.Type.limit).equalsIgnoreCase(order.getMarketOrLimitOrderTypes())) {
+        if(MarketAndLimit.LIMIT.getValue().equalsIgnoreCase(order.getMarketOrLimitOrderTypes())) {
             String currency = order.getCurrency();
 
             if (!isSupportedCurrency(currency)) {
