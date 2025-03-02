@@ -1,6 +1,5 @@
 package com.Ron.tradingApps.model.type;
 
-import lombok.Data;
 import lombok.Getter;
 
 @Getter

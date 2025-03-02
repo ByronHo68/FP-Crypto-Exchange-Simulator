@@ -57,8 +57,9 @@ public class OrderService {
 
     @Transactional
     public OrderResponseDTO createOrder(OrderRequestDTO requestDTO) {
-        Trader trader = traderRepository.findById(requestDTO.getTraderId())
-                .orElseThrow(() -> new IllegalArgumentException("Trader not found"));
+        Trader trader = getTraderById(request.getTraderId());
+        /*Trader trader = traderRepository.findById(requestDTO.getTraderId())
+                .orElseThrow(() -> new IllegalArgumentException("Trader not found"));*/
 
         Order order = Order.builder()
                 .trader(trader)
@@ -247,4 +248,34 @@ public class OrderService {
                 .map(orderMapper::toDTO)
                 .collect(Collectors.toList());
     }
+
+    //
+    private Trader getTraderById(Integer traderId) {
+        return traderRepository.findById(traderId)
+                .orElseThrow(() -> new IllegalArgumentException("Trader not found"));
+    }
+    private Trader getTraderByUserId(String userId) {
+        return traderRepository.findByUserId(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("Trader not found by id " + userId));
+    }
+    private void validateSufficientFunds(BigDecimal available, BigDecimal required, String currency) {
+        if (available.compareTo(required) < 0) {
+            throw new IllegalArgumentException("Insufficient " + currency + " balance");
+        }
+    }
+    private boolean isBuyOrder(Order order) {
+        return BuyAndSell.Type.Buy.name().equalsIgnoreCase(order.getBuyAndSellType());
+    }
+
+    private boolean isSellOrder(Order order) {
+        return BuyAndSell.Type.Sell.name().equalsIgnoreCase(order.getBuyAndSellType());
+    }
+
+    private boolean isLimitOrder(Order order) {
+        return MarketAndLimit.LIMIT.getValue().equalsIgnoreCase(order.getMarketOrLimitOrderTypes());
+    }
+    private boolean isMarketOrder(Order order) {
+        return MarketAndLimit.MARKET.getValue().equalsIgnoreCase(order.getMarketOrLimitOrderTypes());
+    }
+
 }
