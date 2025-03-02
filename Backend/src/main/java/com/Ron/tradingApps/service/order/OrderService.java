@@ -57,11 +57,12 @@ public class OrderService {
 
     @Transactional
     public OrderResponseDTO createOrder(OrderRequestDTO requestDTO) {
-        Trader trader = getTraderById(request.getTraderId());
+        Trader trader = getTraderById(requestDTO.getTraderId());
         /*Trader trader = traderRepository.findById(requestDTO.getTraderId())
                 .orElseThrow(() -> new IllegalArgumentException("Trader not found"));*/
+        Order order = buildInitialOrder(trader, requestDTO);
 
-        Order order = Order.builder()
+        /*Order order = Order.builder()
                 .trader(trader)
                 .marketOrLimitOrderTypes(requestDTO.getMarketOrLimitOrderTypes())
                 .price(requestDTO.getPrice())
@@ -69,7 +70,7 @@ public class OrderService {
                 .buyAndSellType(requestDTO.getBuyAndSellType())
                 .currency(requestDTO.getCurrency())
                 .orderStatus("Pending")
-                .build();
+                .build();*/
 
         order = orderRepository.save(order);
         String userId = trader.getUserId();
@@ -276,6 +277,17 @@ public class OrderService {
     }
     private boolean isMarketOrder(Order order) {
         return MarketAndLimit.MARKET.getValue().equalsIgnoreCase(order.getMarketOrLimitOrderTypes());
+    }
+    private Order buildInitialOrder(Trader trader, OrderRequestDTO request) {
+        return Order.builder()
+                .trader(trader)
+                .marketOrLimitOrderTypes(request.getMarketOrLimitOrderTypes())
+                .price(request.getPrice())
+                .amount(request.getAmount())
+                .buyAndSellType(request.getBuyAndSellType())
+                .currency(request.getCurrency())
+                .orderStatus("Pending")
+                .build();
     }
 
 }
