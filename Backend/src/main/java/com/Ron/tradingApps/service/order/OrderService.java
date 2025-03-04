@@ -73,6 +73,10 @@ public class OrderService {
                 .build();*/
 
         order = orderRepository.save(order);
+
+        processOrderFunds(trader, order);
+        handleLimitOrder(trader, order);
+/*
         String userId = trader.getUserId();
 
         if (String.valueOf(BuyAndSell.Type.Buy).equalsIgnoreCase(order.getBuyAndSellType())) {
@@ -141,7 +145,7 @@ public class OrderService {
                     messagingTemplate.convertAndSend("/topic/orders/pending/" + userId, pendingOrderDto);
                 }
             }
-        }
+        }*/
         return OrderMapper.toResponseDTO(order);
     }
 
@@ -249,6 +253,64 @@ public class OrderService {
                 .map(orderMapper::toDTO)
                 .collect(Collectors.toList());
     }
+
+    private void handleLimitOrder(Trader trader, Order order) {
+        if (!isLimitOrder(order)) return;
+
+        validateSupportedCurrency(order.getCurrency());
+        Double latestPrice = priceService.getLatestPrice(order.getCurrency());
+
+        if (latestPrice != null && !isOrderPriceWithinBounds(order.getPrice(), BigDecimal.valueOf(latestPrice))) {
+            notifyPendingOrder(trader, order);
+        }
+    }
+
+    private void notifyPendingOrder(Trader trader, Order order) {
+        OrderResponseDTO pendingOrderDto = orderMapper.toDTO(order);
+        messagingTemplate.convertAndSend("/topic/orders/pending/" + trader.getUserId(), pendingOrderDto);
+    }
+
+    private void validateSupportedCurrency(String currency) {
+        try {
+            Cryptocurrencies.Type.valueOf(currency);
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException("Unsupported currency: " + currency);
+        }
+    }
+
+
+    //
+    private void processOrderFunds(Trader trader, Order order) {
+        if (isBuyOrder(order)) {
+            processBuyOrderFunds(trader, order);
+        } else if (isSellOrder(order)) {
+            processSellOrderFunds(trader, order);
+        }
+    }
+    private void processBuyOrderFunds(Trader trader, Order order) {
+        BigDecimal cost = order.getPrice().multiply(order.getAmount());
+        Wallet usdtWallet = walletService.findOrCreateWallet(trader, CURRENCY_USDT);
+
+        validateSufficientFunds(usdtWallet.getAmount(), cost, "USDT");
+        updateWalletAndNotify(trader, usdtWallet, usdtWallet.getAmount().subtract(cost), CURRENCY_USDT);
+    }
+
+    private void processSellOrderFunds(Trader trader, Order order) {
+        Wallet currencyWallet = walletService.findOrCreateWallet(trader, order.getCurrency());
+
+        validateSufficientFunds(currencyWallet.getAmount(), order.getAmount(), order.getCurrency());
+        updateWalletAndNotify(trader, currencyWallet, currencyWallet.getAmount().subtract(order.getAmount()),
+                order.getCurrency());
+    }
+
+    private void updateWalletAndNotify(Trader trader, Wallet wallet, BigDecimal newAmount, String currency) {
+        wallet.setAmount(newAmount);
+        walletRepository.save(wallet);
+
+        WalletWebsocketDTO walletDTO = new WalletWebsocketDTO(wallet.getId(), trader.getId(), currency, newAmount);
+        messagingTemplate.convertAndSend("/topic/wallets/" + trader.getUserId(), walletDTO);
+    }
+
 
     //
     private Trader getTraderById(Integer traderId) {
