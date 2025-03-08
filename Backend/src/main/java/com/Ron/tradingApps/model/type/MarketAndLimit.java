@@ -4,15 +4,9 @@ import lombok.Getter;
 
 @Getter
 public enum MarketAndLimit {
-    /*private Type type;
-    public enum Type {
-        Market,
-        limit;
-        private String type;
-    }
-*/
     MARKET("market"),
-    LIMIT("limit");
+    LIMIT("limit"),
+    PENDING("Pending");
     private final String value;
 
     MarketAndLimit(String value) {

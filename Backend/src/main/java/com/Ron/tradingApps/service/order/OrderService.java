@@ -348,7 +348,7 @@ public class OrderService {
                 .amount(request.getAmount())
                 .buyAndSellType(request.getBuyAndSellType())
                 .currency(request.getCurrency())
-                .orderStatus("Pending")
+                .orderStatus(MarketAndLimit.PENDING.getValue())
                 .build();
     }
 
