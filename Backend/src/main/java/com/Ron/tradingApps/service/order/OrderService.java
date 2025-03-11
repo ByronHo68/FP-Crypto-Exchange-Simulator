@@ -58,104 +58,15 @@ public class OrderService {
     @Transactional
     public OrderResponseDTO createOrder(OrderRequestDTO requestDTO) {
         Trader trader = getTraderById(requestDTO.getTraderId());
-        /*Trader trader = traderRepository.findById(requestDTO.getTraderId())
-                .orElseThrow(() -> new IllegalArgumentException("Trader not found"));*/
         Order order = buildInitialOrder(trader, requestDTO);
-
-        /*Order order = Order.builder()
-                .trader(trader)
-                .marketOrLimitOrderTypes(requestDTO.getMarketOrLimitOrderTypes())
-                .price(requestDTO.getPrice())
-                .amount(requestDTO.getAmount())
-                .buyAndSellType(requestDTO.getBuyAndSellType())
-                .currency(requestDTO.getCurrency())
-                .orderStatus("Pending")
-                .build();*/
 
         order = orderRepository.save(order);
 
         processOrderFunds(trader, order);
         handleLimitOrder(trader, order);
-/*
-        String userId = trader.getUserId();
+        // pls add the code here
 
-        if (String.valueOf(BuyAndSell.Type.Buy).equalsIgnoreCase(order.getBuyAndSellType())) {
-            BigDecimal cost = order.getPrice().multiply(order.getAmount());
-            Wallet usdtWallet = walletService.findOrCreateWallet(trader, CURRENCY_USDT);
-
-            if (usdtWallet.getAmount().compareTo(cost) < 0) {
-                throw new IllegalArgumentException("Insufficient USDT balance");
-            }
-
-            usdtWallet.setAmount(usdtWallet.getAmount().subtract(cost));
-            walletRepository.save(usdtWallet);
-
-            WalletWebsocketDTO usdtWalletDTO = new WalletWebsocketDTO(
-                    usdtWallet.getId(),
-                    trader.getId(),
-                    CURRENCY_USDT,
-                    usdtWallet.getAmount()
-            );
-
-            messagingTemplate.convertAndSend("/topic/wallets/" + userId, usdtWalletDTO);
-
-        } else if (String.valueOf(BuyAndSell.Type.Sell).equalsIgnoreCase(order.getBuyAndSellType())) {
-            Wallet currencyWallet = walletService.findOrCreateWallet(trader, order.getCurrency());
-
-            if (currencyWallet.getAmount().compareTo(order.getAmount()) < 0) {
-                throw new IllegalArgumentException("Insufficient currency balance");
-            }
-
-            currencyWallet.setAmount(currencyWallet.getAmount().subtract(order.getAmount()));
-            walletRepository.save(currencyWallet);
-
-            WalletWebsocketDTO currencyWalletDTO = new WalletWebsocketDTO(
-                    currencyWallet.getId(),
-                    trader.getId(),
-                    order.getCurrency(),
-                    currencyWallet.getAmount()
-            );
-
-            messagingTemplate.convertAndSend("/topic/wallets/" + userId, currencyWalletDTO);
-        }
-        if(MarketAndLimit.LIMIT.getValue().equalsIgnoreCase(order.getMarketOrLimitOrderTypes())) {
-            String currency = order.getCurrency();
-
-            if (!isSupportedCurrency(currency)) {
-                throw new IllegalArgumentException("Unsupported currency: " + currency);
-            }
-
-            Double latestPrice = priceService.getLatestPrice(currency);
-
-            if (latestPrice != null) {
-                BigDecimal latestPriceBD = BigDecimal.valueOf(latestPrice);
-                BigDecimal orderPrice = order.getPrice();
-
-                if (!isOrderPriceWithinBounds(orderPrice, latestPriceBD)) {
-                    OrderDTO pendingOrderDto = new OrderDTO(
-                            order.getId(),
-                            trader.getId(),
-                            order.getPrice(),
-                            order.getAmount(),
-                            order.getBuyAndSellType(),
-                            order.getCurrency(),
-                            order.getMarketOrLimitOrderTypes(),
-                            order.getOrderStatus()
-                    );
-                    messagingTemplate.convertAndSend("/topic/orders/pending/" + userId, pendingOrderDto);
-                }
-            }
-        }*/
         return OrderMapper.toResponseDTO(order);
-    }
-
-    private boolean isSupportedCurrency(String currency) {
-        for (Cryptocurrencies.Type type : Cryptocurrencies.Type.values()) {
-            if (type.name().equals(currency)) {
-                return true;
-            }
-        }
-        return false;
     }
 
     private boolean isOrderPriceWithinBounds(BigDecimal orderPrice, BigDecimal latestPriceBD) {
@@ -277,9 +188,6 @@ public class OrderService {
             throw new IllegalArgumentException("Unsupported currency: " + currency);
         }
     }
-
-
-    //
     private void processOrderFunds(Trader trader, Order order) {
         if (isBuyOrder(order)) {
             processBuyOrderFunds(trader, order);
@@ -310,16 +218,9 @@ public class OrderService {
         WalletWebsocketDTO walletDTO = new WalletWebsocketDTO(wallet.getId(), trader.getId(), currency, newAmount);
         messagingTemplate.convertAndSend("/topic/wallets/" + trader.getUserId(), walletDTO);
     }
-
-
-    //
     private Trader getTraderById(Integer traderId) {
         return traderRepository.findById(traderId)
                 .orElseThrow(() -> new IllegalArgumentException("Trader not found"));
-    }
-    private Trader getTraderByUserId(String userId) {
-        return traderRepository.findByUserId(userId)
-                .orElseThrow(() -> new ResourceNotFoundException("Trader not found by id " + userId));
     }
     private void validateSufficientFunds(BigDecimal available, BigDecimal required, String currency) {
         if (available.compareTo(required) < 0) {
@@ -351,5 +252,105 @@ public class OrderService {
                 .orderStatus(MarketAndLimit.PENDING.getValue())
                 .build();
     }
+
+
+    /*
+
+    replaced by getTraderById
+
+        Trader trader = traderRepository.findById(requestDTO.getTraderId())
+                .orElseThrow(() -> new IllegalArgumentException("Trader not found"));
+        String userId = trader.getUserId();
+//
+
+replaced by buildInitialOrder
+
+        Order order = Order.builder()
+                .trader(trader)
+                .marketOrLimitOrderTypes(requestDTO.getMarketOrLimitOrderTypes())
+                .price(requestDTO.getPrice())
+                .amount(requestDTO.getAmount())
+                .buyAndSellType(requestDTO.getBuyAndSellType())
+                .currency(requestDTO.getCurrency())
+                .orderStatus("Pending")
+                .build();
+
+//
+
+// already no need
+private Trader getTraderByUserId(String userId) {
+        return traderRepository.findByUserId(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("Trader not found by id " + userId));
+    }
+    //
+
+
+        if (String.valueOf(BuyAndSell.Type.Buy).equalsIgnoreCase(order.getBuyAndSellType())) {
+            BigDecimal cost = order.getPrice().multiply(order.getAmount());
+            Wallet usdtWallet = walletService.findOrCreateWallet(trader, CURRENCY_USDT);
+
+            if (usdtWallet.getAmount().compareTo(cost) < 0) {
+                throw new IllegalArgumentException("Insufficient USDT balance");
+            }
+
+            usdtWallet.setAmount(usdtWallet.getAmount().subtract(cost));
+            walletRepository.save(usdtWallet);
+
+            WalletWebsocketDTO usdtWalletDTO = new WalletWebsocketDTO(
+                    usdtWallet.getId(),
+                    trader.getId(),
+                    CURRENCY_USDT,
+                    usdtWallet.getAmount()
+            );
+
+            messagingTemplate.convertAndSend("/topic/wallets/" + userId, usdtWalletDTO);
+
+        } else if (String.valueOf(BuyAndSell.Type.Sell).equalsIgnoreCase(order.getBuyAndSellType())) {
+            Wallet currencyWallet = walletService.findOrCreateWallet(trader, order.getCurrency());
+
+            if (currencyWallet.getAmount().compareTo(order.getAmount()) < 0) {
+                throw new IllegalArgumentException("Insufficient currency balance");
+            }
+
+            currencyWallet.setAmount(currencyWallet.getAmount().subtract(order.getAmount()));
+            walletRepository.save(currencyWallet);
+
+            WalletWebsocketDTO currencyWalletDTO = new WalletWebsocketDTO(
+                    currencyWallet.getId(),
+                    trader.getId(),
+                    order.getCurrency(),
+                    currencyWallet.getAmount()
+            );
+
+            messagingTemplate.convertAndSend("/topic/wallets/" + userId, currencyWalletDTO);
+        }
+        if(MarketAndLimit.LIMIT.getValue().equalsIgnoreCase(order.getMarketOrLimitOrderTypes())) {
+            String currency = order.getCurrency();
+
+            if (!isSupportedCurrency(currency)) {
+                throw new IllegalArgumentException("Unsupported currency: " + currency);
+            }
+
+            Double latestPrice = priceService.getLatestPrice(currency);
+
+            if (latestPrice != null) {
+                BigDecimal latestPriceBD = BigDecimal.valueOf(latestPrice);
+                BigDecimal orderPrice = order.getPrice();
+
+                if (!isOrderPriceWithinBounds(orderPrice, latestPriceBD)) {
+                    OrderDTO pendingOrderDto = new OrderDTO(
+                            order.getId(),
+                            trader.getId(),
+                            order.getPrice(),
+                            order.getAmount(),
+                            order.getBuyAndSellType(),
+                            order.getCurrency(),
+                            order.getMarketOrLimitOrderTypes(),
+                            order.getOrderStatus()
+                    );
+                    messagingTemplate.convertAndSend("/topic/orders/pending/" + userId, pendingOrderDto);
+                }
+            }
+        }*/
 
 }
