@@ -32,32 +32,37 @@ import java.util.stream.Collectors;
 @Slf4j
 public class TransactionService {
 
-    @Autowired
-    private WalletService walletService;
+    private final WalletService walletService;
+    private final TransactionRepository transactionRepository;
+    private final TraderRepository traderRepository;
+    private final WalletRepository walletRepository;
+    private final OrderRepository orderRepository;
+    private final OrderMapper orderMapper;
+    private final OrderService orderService;
+    private final SimpMessagingTemplate messagingTemplate;
+    private final TransactionMapper transactionMapper;
 
-    @Autowired
-    private TransactionRepository transactionRepository;
-
-    @Autowired
-    private TraderRepository traderRepository;
-
-    @Autowired
-    private WalletRepository walletRepository;
-
-    @Autowired
-    private OrderRepository orderRepository;
-
-    @Autowired
-    private OrderMapper orderMapper;
-
-    @Autowired
-    private OrderService orderService;
-
-    @Autowired
-    private SimpMessagingTemplate messagingTemplate;
-
-    @Autowired
-    private TransactionMapper transactionMapper;
+    public YourClassName(
+            WalletService walletService,
+            TransactionRepository transactionRepository,
+            TraderRepository traderRepository,
+            WalletRepository walletRepository,
+            OrderRepository orderRepository,
+            OrderMapper orderMapper,
+            OrderService orderService,
+            SimpMessagingTemplate messagingTemplate,
+            TransactionMapper transactionMapper
+    ) {
+        this.walletService = walletService;
+        this.transactionRepository = transactionRepository;
+        this.traderRepository = traderRepository;
+        this.walletRepository = walletRepository;
+        this.orderRepository = orderRepository;
+        this.orderMapper = orderMapper;
+        this.orderService = orderService;
+        this.messagingTemplate = messagingTemplate;
+        this.transactionMapper = transactionMapper;
+    }
     private static final String CURRENCY_USDT = "USDT";
 
     @Transactional
