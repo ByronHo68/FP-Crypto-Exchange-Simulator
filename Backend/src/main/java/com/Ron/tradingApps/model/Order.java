@@ -1,9 +1,6 @@
 package com.Ron.tradingApps.model;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
@@ -61,6 +58,11 @@ public class Order {
         this.price = price;
         this.marketOrLimitOrderTypes = marketOrLimitOrderTypes;
         this.orderStatus = orderStatus;
+    }
+    @Getter
+    public enum BuyAndSellType{
+        Buy,
+        Sell;
     }
 
     @Override
