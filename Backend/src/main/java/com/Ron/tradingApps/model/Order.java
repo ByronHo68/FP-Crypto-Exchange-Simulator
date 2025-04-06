@@ -65,6 +65,13 @@ public class Order {
         Sell;
     }
 
+    @Getter
+    public enum currency{
+        BTCUSDT,
+        ETHUSDT;
+        /*SOLUSDT;*/
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
